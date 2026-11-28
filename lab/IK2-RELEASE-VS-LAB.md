@@ -74,6 +74,30 @@ Les moteurs sont sur la ligne de commande, gloutons, cache KV en FP8, avec le pr
 - **Q4 + DSpark sur la 4060 Ti tombe à 10 t/s** (30 sans draft), release comme lab : la carte affiche le bureau et le
   drafteur prend la place des experts ; pas creusé.
 
+## Les drafters sur du vrai texte (28/11, après lecture de simplexai-labs/PolyStrata#339)
+
+Le prompt de ce banc (`lab/ids302.txt`) est une liste répétitive (« Entry 1: at the market hall… ») : les suppositions y
+sont gardées à 85-99 %, par le prompt lookup comme par les drafters eux-mêmes (88-93 % lookup coupé). Les barres
+« + DSpark / DFlash2 » ci-dessus comparent donc les chemins spéculatifs des moteurs sur un terrain facile, pas le draft
+sur du texte ordinaire. Refait comme le demande cette issue : prompt lookup coupé (`--lookup 0`, `IK2_LOOKUP=0`), deux
+prompts réels (code, 175 jetons ; récit, 145 jetons), 256 jetons, fenêtres 4 / 6 / 8, deux courses par case, la meilleure
+fenêtre gardée. t/s, et la part des suppositions gardées.
+
+| Carte, prompt | PolyStrata sans draft | + DSpark | + DFlash2 Q8_0 | Maya sans draft | + DSpark | + DFlash2 |
+|---|---|---|---|---|---|---|
+| RTX 5080, code | 154 | 234 (w6, 75 %) | 228 (w8, 77 %) | 119 | 142 (w6, 72 %) | 141 (w4, 78 %) |
+| RTX 5080, récit | 153 | 174 (w4, 46 %) | 190 (w8, 69 %) | 119 | 110 (w6, 17 %) | 119 (w4, 56 %) |
+| RTX 4060 Ti, code | 65 | 109 (w8, 76 %) | 105 (w8, 79 %) | 59 | 67 (w6, 72 %) | 60 (w4, 63 %) |
+| RTX 4060 Ti, récit | 64 | 76 (w4, 46 %) | 83 (w8, 69 %) | 59 | 55 (w4, 22 %) | 56 (w6, 52 %) |
+
+PolyStrata : branche `feat/inkling2-dflash2` (dc5468a08). Maya : cette branche (chemin résident, contexte 16K).
+
+- Sur du code, les deux drafters se valent à la fenêtre 4 (PolyStrata 5080 : 216 contre 211) ; DSpark garde l'avance sur
+  PolyStrata aux fenêtres larges (234 contre 215 à 6), DFlash2 rattrape à 8 (228).
+- Sur le récit, DFlash2 profite de la fenêtre (PolyStrata 5080 : 171, 173, 190) quand DSpark recule (174, 170, 164).
+- Chez Maya, le draft ne gagne que sur du code (+19 % sur la 5080, +14 % sur la 4060 Ti) et rien sur le récit (110-119
+  contre 119 sans draft) : la vérification d'une fenêtre y coûte ce que les suppositions rapportent.
+
 ## Les réglages qui comptent en mono (balayage du 28/11)
 
 | Fichier, cas | Réglage | Effet |

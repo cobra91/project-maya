@@ -92,7 +92,9 @@ Deux réglages arrêtent le moteur ici : `IK2_CPU=1` (`cudaHostAlloc … out of 
 
 ## D'où vient l'écart qui reste avec PolyStrata en mono
 
-IQ3_XXS, RTX 5080, sans draft : Maya 120 t/s, PolyStrata 153 ; avec DSpark 173 contre 302.
+IQ3_XXS, RTX 5080, sans draft : Maya 120 t/s, PolyStrata 152-154 ; avec DSpark (fenêtre 4) Maya 167-173 contre
+PolyStrata 234-235 (binaire de prod du 25/11, 512 jetons) et 277-302 (build du main 42e489d14 du 27/11 ; 302 sur une
+génération de 1 600 jetons).
 
 - **Pendant le décodage la carte est occupée à 99 % par les deux moteurs** (un noyau tourne presque tout le temps). L'écart
   est dans la lecture des poids : mémoire active 67 % du temps avec Maya contre 72 % avec PolyStrata ; avec un draft,
